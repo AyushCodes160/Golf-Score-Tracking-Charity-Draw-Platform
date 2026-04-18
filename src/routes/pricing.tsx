@@ -1,47 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import Stripe from "stripe";
 
-// Note: Ensure STRIPE_SECRET_KEY is only available on the server
-// The server fn handles the logic so the secret never leaks.
-const createCheckoutSession = createServerFn({ method: "POST" })
-  .validator((d: { priceId: string; userId: string; email: string }) => d)
-  .handler(async ({ data }) => {
-    const stripeSecret = process.env.STRIPE_SECRET_KEY;
-    if (!stripeSecret) {
-      throw new Error("Stripe is not configured in the backend yet.");
-    }
-
-    const stripe = new Stripe(stripeSecret, {
-      apiVersion: "2025-02-24.acacia", 
-    });
-
-    try {
-      const session = await stripe.checkout.sessions.create({
-        mode: "subscription",
-        payment_method_types: ["card"],
-        line_items: [
-          {
-            price: data.priceId,
-            quantity: 1,
-          },
-        ],
-        success_url: `${process.env.VITE_SITE_URL || 'http://localhost:8080'}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.VITE_SITE_URL || 'http://localhost:8080'}/pricing`,
-        customer_email: data.email,
-        metadata: {
-          user_id: data.userId,
-        },
-      });
-
-      return { url: session.url };
-    } catch (e: any) {
-      console.error(e);
-      throw new Error("Failed to formulate checkout session.");
-    }
-  });
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -94,13 +54,17 @@ function PricingPage() {
         ? import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID || "price_monthly_placeholder"
         : import.meta.env.VITE_STRIPE_YEARLY_PRICE_ID || "price_yearly_placeholder";
 
-      const result = await createCheckoutSession({
-        data: {
-          priceId,
-          userId: user.id,
-          email: user.email,
-        }
+      // Call the newly created backend endpoint
+      const resp = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ priceId, userId: user.id, email: user.email })
       });
+      
+      if (!resp.ok) {
+         throw new Error("Formulate checkout failed");
+      }
+      const result = await resp.json();
 
       if (result.url) {
         window.location.href = result.url;
