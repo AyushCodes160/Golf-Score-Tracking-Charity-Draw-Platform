@@ -158,10 +158,16 @@ function CharitiesPage() {
             <h2 className="max-w-xl font-serif text-3xl font-light leading-tight md:text-4xl">
               Pick the cause that moves you. Adjust your allocation any time.
             </h2>
-            <div className="md:justify-self-end">
+            <div className="md:justify-self-end flex flex-col md:flex-row gap-4">
+              <button
+                onClick={() => alert("Launching Stripe One-Time Donation Checkout...")}
+                className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                Make a one-off donation
+              </button>
               <Link
                 to="/pricing"
-                className="inline-flex h-12 items-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
               >
                 Start your membership
               </Link>
