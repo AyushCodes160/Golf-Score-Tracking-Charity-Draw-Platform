@@ -52,9 +52,8 @@ export default async function handler(req: any, res: any) {
     }
 
     // 2. Simulated Economics for the assignment presentation
-    // Calculate global charity portion based on users' individual preferences!
-    const baseSubsTotal = ticketHolders.length * 900; // Assumes ₹900 per active ticket currently
-    const BASE_POOL = Math.max(50000, baseSubsTotal * 10); // Artificial inflation for demo impressing
+    const baseSubsTotal = ticketHolders.length * 900; 
+    const BASE_POOL = Math.max(50000, baseSubsTotal * 10); 
     
     // Charity is individually weighted based on user slider preferences
     let charityPayout = 0;
@@ -62,10 +61,31 @@ export default async function handler(req: any, res: any) {
        charityPayout += (BASE_POOL / ticketHolders.length) * (ticket.allocationPct / 100);
     }
     
+    // Fetch last draw to check for Rollover Jackpot
+    const { data: lastDraw } = await supabase
+      .from('draws')
+      .select('jackpot_payout, id')
+      .order('ran_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let rolledOverJackpot = 0;
+    if (lastDraw) {
+      const { count: lastDrawTier5Winners } = await supabase
+        .from('draw_entries')
+        .select('*', { count: 'exact', head: true })
+        .eq('draw_id', lastDraw.id)
+        .eq('matched_count', 5);
+
+      if (lastDrawTier5Winners === 0) {
+        rolledOverJackpot = lastDraw.jackpot_payout;
+      }
+    }
+
     const availablePool = BASE_POOL - charityPayout;
     
     // Exact Tiers specified in PRD Section 6
-    const poolTier5 = availablePool * 0.40; // Jackpot
+    const poolTier5 = (availablePool * 0.40) + rolledOverJackpot; // Jackpot plus rollover
     const poolTier4 = availablePool * 0.35; // 4 matches
     const poolTier3 = availablePool * 0.25; // 3 matches
 
