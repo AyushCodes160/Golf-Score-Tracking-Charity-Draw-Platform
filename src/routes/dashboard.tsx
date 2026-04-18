@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useLoaderData, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useLoaderData, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase, type Charity } from "../lib/supabase";
 
@@ -27,9 +27,18 @@ export const Route = createFileRoute("/dashboard")({
       .eq("active", true)
       .order("created_at", { ascending: true });
 
+    // Fetch user scores
+    const { data: scores } = await supabase
+      .from("scores")
+      .select("*")
+      .eq("user_id", userId)
+      .order("played_at", { ascending: false })
+      .order("created_at", { ascending: false });
+
     return { 
       profile: profile || null, 
       charities: (charities || []) as Charity[],
+      scores: scores || [],
       userEmail: context.session?.user.email
     };
   },
@@ -37,14 +46,56 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
-  const { profile, charities, userEmail } = useLoaderData({ from: "/dashboard" });
+  const { profile, charities, scores, userEmail } = useLoaderData({ from: "/dashboard" });
   const navigate = useNavigate();
+  const router = useRouter();
   
-  // State for form
+  // State for forms
   const [selectedCharity, setSelectedCharity] = useState<string>(profile?.chosen_charity_id || "");
   const [allocation, setAllocation] = useState<number>(profile?.charity_allocation_pct || 10);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+
+  const [newScore, setNewScore] = useState<string>("");
+  const [playedAt, setPlayedAt] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [isSubmittingScore, setIsSubmittingScore] = useState(false);
+  const [scoreMessage, setScoreMessage] = useState("");
+
+  const handleScoreSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newScore) return;
+    
+    setIsSubmittingScore(true);
+    setScoreMessage("");
+    
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const numScore = parseInt(newScore, 10);
+      
+      if (isNaN(numScore) || numScore < 0 || numScore > 54) {
+        throw new Error("Score must be between 0 and 54.");
+      }
+
+      const { error } = await supabase
+        .from("scores")
+        .insert({
+          user_id: session?.user.id,
+          score: numScore,
+          played_at: playedAt
+        });
+
+      if (error) throw error;
+      
+      setNewScore("");
+      setScoreMessage("Score logged successfully!");
+      router.invalidate(); // instantly fetch the updated array including the trigger drop
+    } catch (error: any) {
+      setScoreMessage(`Error: ${error.message}`);
+    } finally {
+      setIsSubmittingScore(false);
+      setTimeout(() => setScoreMessage(""), 4000);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +155,87 @@ function DashboardPage() {
 
         {/* Main Content */}
         <div className="space-y-8">
+
+          {/* Score Management Section */}
+          <section className="rounded-sm border border-border bg-card p-6 md:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="font-serif text-2xl">Stableford Scores</h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Your 5 most recent scores qualify for the monthly draw. Entering a 6th automatically pushes the oldest out.
+                </p>
+              </div>
+            </div>
+
+            {/* Visual 5-Score Array */}
+            <div className="grid grid-cols-5 gap-3 mb-8">
+              {Array.from({ length: 5 }).map((_, i) => {
+                const scoreRecord = scores[i];
+                return (
+                  <div 
+                    key={scoreRecord?.id || i}
+                    className={`flex flex-col items-center justify-center rounded-sm border p-4 aspect-square transition-all ${
+                      scoreRecord ? 'border-primary bg-primary/5 shadow-inner' : 'border-dashed border-border/50 bg-accent/20'
+                    }`}
+                  >
+                    {scoreRecord ? (
+                      <>
+                        <span className="font-serif text-3xl font-light text-foreground">{scoreRecord.score}</span>
+                        <span className="text-[10px] text-muted-foreground mt-2 uppercase tracking-widest text-center leading-tight">
+                          {new Date(scoreRecord.played_at).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground/30 text-sm font-medium">Empty</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Score Entry Form */}
+            <form onSubmit={handleScoreSubmit} className="flex flex-col sm:flex-row gap-4 items-start sm:items-end pt-6 border-t border-border">
+              <div className="flex-1 w-full">
+                <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2 block">
+                  Add New Score
+                </label>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    min="0"
+                    max="54"
+                    value={newScore}
+                    onChange={(e) => setNewScore(e.target.value)}
+                    placeholder="Score (0-54)"
+                    className="flex h-10 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    required
+                  />
+                  <input
+                    type="date"
+                    value={playedAt}
+                    onChange={(e) => setPlayedAt(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="flex h-10 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    required
+                  />
+                </div>
+              </div>
+              
+              <button
+                type="submit"
+                disabled={isSubmittingScore || !newScore}
+                className="inline-flex h-10 items-center justify-center rounded-sm bg-accent px-6 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90 disabled:opacity-50 whitespace-nowrap w-full sm:w-auto mt-2 sm:mt-0"
+              >
+                {isSubmittingScore ? "Submitting..." : "Log Score"}
+              </button>
+            </form>
+            
+            {scoreMessage && (
+              <p className={`mt-4 text-sm font-medium ${scoreMessage.startsWith("Error") ? "text-destructive" : "text-primary"}`}>
+                {scoreMessage}
+              </p>
+            )}
+          </section>
           
           <section className="rounded-sm border border-border bg-card p-6 md:p-8">
             <h2 className="font-serif text-2xl">Your Charitable Impact</h2>
