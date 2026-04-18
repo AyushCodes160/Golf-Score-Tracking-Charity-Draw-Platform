@@ -8,6 +8,18 @@ export const Route = createFileRoute("/dashboard")({
     if (!session) {
       throw redirect({ to: "/login" });
     }
+    
+    // Strict subscription check mandated by PRD Section 04
+    const { data: profile } = await supabase
+       .from("profiles")
+       .select("subscription_status")
+       .eq("id", session.user.id)
+       .single();
+       
+    if (profile?.subscription_status !== 'active') {
+       throw redirect({ to: "/pricing" });
+    }
+
     return { session };
   },
   loader: async ({ context }) => {
