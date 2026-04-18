@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useLoaderData, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useLoaderData, useNavigate, useRouter, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase, type Charity } from "../lib/supabase";
 
@@ -147,9 +147,11 @@ function DashboardPage() {
         {/* Sidebar Nav (Static for now) */}
         <aside className="hidden md:block border-r border-border/40 pr-8">
           <nav className="flex flex-col gap-2">
-            <a href="#" className="bg-accent/50 text-foreground rounded-sm px-4 py-2 text-sm font-medium">Charity Rules</a>
-            <a href="#" className="text-muted-foreground hover:bg-accent/10 rounded-sm px-4 py-2 text-sm font-medium">Score Entry (Coming Soon)</a>
-            <a href="#" className="text-muted-foreground hover:bg-accent/10 rounded-sm px-4 py-2 text-sm font-medium">Draw History (Coming Soon)</a>
+            <Link to="/charities" className="text-muted-foreground hover:bg-accent/10 rounded-sm px-4 py-2 text-sm font-medium">Partner Charities</Link>
+            <Link to="/draw-history" className="text-muted-foreground hover:bg-accent/10 rounded-sm px-4 py-2 text-sm font-medium">Draw History</Link>
+            {profile?.is_admin && (
+              <Link to="/admin" className="text-destructive hover:bg-destructive/10 rounded-sm px-4 py-2 text-sm font-medium mt-4 border border-destructive/20">Admin Panel</Link>
+            )}
           </nav>
         </aside>
 
