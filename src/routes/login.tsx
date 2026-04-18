@@ -34,8 +34,8 @@ function LoginPage() {
           password,
         });
         if (error) throw error;
-        // If login successful, go back or to pricing
-        navigate({ to: "/pricing" });
+        // If login successful, go to the dashboard
+        navigate({ to: "/dashboard" });
       }
     } catch (err: any) {
       setError(err.message);
