@@ -4,7 +4,7 @@
 > **Built for the Digital Heroes Full-Stack Development Trainee Assignment**  
 > Every feature specified in the PRD has been implemented, including hidden edge cases.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://your-vercel-url.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=for-the-badge&logo=vercel)](https://golf-score-tracking-charity-draw-pl.vercel.app/)
 [![GitHub](https://img.shields.io/badge/Source%20Code-GitHub-181717?style=for-the-badge&logo=github)](https://github.com/AyushCodes160/Golf-Score-Tracking-Charity-Draw-Platform)
 [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com)
 [![Stripe](https://img.shields.io/badge/Payments-Stripe-635BFF?style=for-the-badge&logo=stripe)](https://stripe.com)
@@ -252,7 +252,10 @@ All items from the Digital Heroes PRD have been implemented:
 ## 🤝 Contact
 
 **Ayush Kumar**  
-GitHub: [@AyushCodes160](https://github.com/AyushCodes160)
+📞 +91 9304919635  
+GitHub: [@AyushCodes160](https://github.com/AyushCodes160)  
+🔗 [GitHub Repository](https://github.com/AyushCodes160/Golf-Score-Tracking-Charity-Draw-Platform)  
+🌐 [Live Site](https://golf-score-tracking-charity-draw-pl.vercel.app/)
 
 ---
 
