@@ -12,17 +12,29 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: "Supabase service configuration missing" });
   }
 
+  // Parse config flags sent from Admin dashboard
+  const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+  const isSimulation = body.simulate === true;
+  const useAlgorithm = body.algorithm === true;
+
   // Bypass RLS to execute algorithmic updates securely
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
-    // 1. Fetch users and their scores
+    // 1. Fetch users, their scores, and their exact charity allocation percentage
     const { data: scoresData, error: scoresError } = await supabase
       .from('scores')
       .select('user_id, score, played_at')
       .order('played_at', { ascending: false });
 
     if (scoresError) throw scoresError;
+
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, charity_allocation_pct');
+      
+    if (profilesError) throw profilesError;
+    const profileMap = Object.fromEntries(profilesData.map((p: any) => [p.id, p.charity_allocation_pct || 10]));
 
     const userMap: Record<string, number[]> = {};
     for (const row of (scoresData || [])) {
@@ -32,7 +44,7 @@ export default async function handler(req: any, res: any) {
 
     // Filter down to ONLY users who have EXACTLY 5 scores
     const ticketHolders = Object.keys(userMap)
-      .map(id => ({ user_id: id, scores: userMap[id] }))
+      .map(id => ({ user_id: id, scores: userMap[id], allocationPct: profileMap[id] }))
       .filter(t => t.scores.length === 5);
 
     if (ticketHolders.length === 0) {
@@ -40,9 +52,16 @@ export default async function handler(req: any, res: any) {
     }
 
     // 2. Simulated Economics for the assignment presentation
-    // Simulating ₹50,000 base revenue collection for impressive demo graphics
-    const BASE_POOL = 50000; 
-    const charityPayout = BASE_POOL * 0.10; 
+    // Calculate global charity portion based on users' individual preferences!
+    const baseSubsTotal = ticketHolders.length * 900; // Assumes ₹900 per active ticket currently
+    const BASE_POOL = Math.max(50000, baseSubsTotal * 10); // Artificial inflation for demo impressing
+    
+    // Charity is individually weighted based on user slider preferences
+    let charityPayout = 0;
+    for (const ticket of ticketHolders) {
+       charityPayout += (BASE_POOL / ticketHolders.length) * (ticket.allocationPct / 100);
+    }
+    
     const availablePool = BASE_POOL - charityPayout;
     
     // Exact Tiers specified in PRD Section 6
@@ -50,9 +69,26 @@ export default async function handler(req: any, res: any) {
     const poolTier4 = availablePool * 0.35; // 4 matches
     const poolTier3 = availablePool * 0.25; // 3 matches
 
-    // 3. Generate 5 Random "Stableford" Winning Numbers (0 to 54)
-    // We sort them for clean visual representation later
-    const winningNumbers = Array.from({ length: 5 }, () => Math.floor(Math.random() * 55)).sort((a,b) => a-b);
+    // 3. Generate 5 Winning Numbers (0 to 45)
+    let winningNumbers: number[] = [];
+    
+    if (useAlgorithm) {
+      // Algorithmic mode: weighted by most frequent user scores
+      const freq: Record<number, number> = {};
+      ticketHolders.forEach(t => t.scores.forEach(s => freq[s] = (freq[s] || 0) + 1));
+      
+      const sortedFreqs = Object.entries(freq).sort((a,b) => b[1] - a[1]);
+      // taking the top 5 most frequent numbers
+      winningNumbers = sortedFreqs.slice(0, 5).map(f => parseInt(f[0])).sort((a,b) => a-b);
+      
+      // If there weren't enough unique scores played, fill with randoms
+      while(winningNumbers.length < 5) {
+         winningNumbers.push(Math.floor(Math.random() * 46));
+      }
+    } else {
+      // Random generation mode
+      winningNumbers = Array.from({ length: 5 }, () => Math.floor(Math.random() * 46)).sort((a,b) => a-b);
+    }
 
     // 4. Calculate Matches
     let tier5Winners = 0;
@@ -60,7 +96,6 @@ export default async function handler(req: any, res: any) {
     let tier3Winners = 0;
 
     const results = ticketHolders.map(ticket => {
-      // Create a mutable copy of winning numbers to prevent duplicate matching
       const wins = [...winningNumbers];
       let matches = 0;
       for (const s of ticket.scores) {
@@ -80,6 +115,16 @@ export default async function handler(req: any, res: any) {
         matches
       };
     });
+    
+    if (isSimulation) {
+      // Abort permanent records DB inserts, just return the projected math!
+      return res.status(200).json({ 
+        success: true, 
+        simulated: true,
+        winning_numbers: winningNumbers,
+        stats: { tier5Winners, tier4Winners, tier3Winners, charityPayout, poolTier5 }
+      });
+    }
 
     // 5. Document the Draw permanently in Database
     const { data: drawRecord, error: drawError } = await supabase
@@ -113,14 +158,18 @@ export default async function handler(req: any, res: any) {
       };
     });
 
-    const { error: entriesError } = await supabase
-      .from('draw_entries')
-      .insert(entriesToInsert);
+    // Write to entries
+    if (entriesToInsert.length > 0) {
+      const { error: entriesError } = await supabase
+        .from('draw_entries')
+        .insert(entriesToInsert);
 
-    if (entriesError) throw entriesError;
+      if (entriesError) throw entriesError;
+    }
 
     return res.status(200).json({ 
       success: true, 
+      simulated: false,
       draw: drawRecord.id,
       winning_numbers: winningNumbers,
       stats: { tier5Winners, tier4Winners, tier3Winners }

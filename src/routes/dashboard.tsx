@@ -97,6 +97,17 @@ function DashboardPage() {
     }
   };
 
+  const handleDeleteScore = async (scoreId: number) => {
+    try {
+      const { error } = await supabase.from('scores').delete().eq('id', scoreId);
+      if (error) throw error;
+      setScoreMessage("Score deleted.");
+      router.invalidate();
+    } catch (err: any) {
+      setScoreMessage(`Error: ${err.message}`);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -181,12 +192,22 @@ function DashboardPage() {
                     }`}
                   >
                     {scoreRecord ? (
-                      <>
+                      <div className="relative group w-full h-full flex flex-col items-center justify-center">
                         <span className="font-serif text-3xl font-light text-foreground">{scoreRecord.score}</span>
                         <span className="text-[10px] text-muted-foreground mt-2 uppercase tracking-widest text-center leading-tight">
                           {new Date(scoreRecord.played_at).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}
                         </span>
-                      </>
+                        
+                        {/* Hover Overlay Delete Button */}
+                        <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                          <button
+                            onClick={() => handleDeleteScore(scoreRecord.id)}
+                            className="text-xs font-medium text-destructive bg-destructive/10 hover:bg-destructive/20 px-3 py-1.5 rounded-sm border border-destructive/20 transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <span className="text-muted-foreground/30 text-sm font-medium">Empty</span>
                     )}
@@ -205,10 +226,10 @@ function DashboardPage() {
                   <input
                     type="number"
                     min="0"
-                    max="54"
+                    max="45"
                     value={newScore}
                     onChange={(e) => setNewScore(e.target.value)}
-                    placeholder="Score (0-54)"
+                    placeholder="Score (0-45)"
                     className="flex h-10 w-full rounded-sm border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     required
                   />

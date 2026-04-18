@@ -1,4 +1,5 @@
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, useLoaderData, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
 export const Route = createFileRoute("/draw-history")({
@@ -33,6 +34,44 @@ export const Route = createFileRoute("/draw-history")({
 
 function DrawHistoryPage() {
   const { draws, userEntries } = useLoaderData({ from: "/draw-history" });
+  const router = useRouter();
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
+
+  const handleUploadProof = async (entryId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingId(entryId);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${entryId}-${Math.random()}.${fileExt}`;
+      
+      // Upload explicitly to the winner_proofs public bucket
+      const { error: uploadError } = await supabase.storage
+        .from('winner_proofs')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('winner_proofs')
+        .getPublicUrl(filePath);
+
+      // Update the ticket entry with the proof and trigger state 'pending_review'
+      const { error: updateError } = await supabase.from('draw_entries').update({
+        verification_status: 'pending_review',
+        proof_image_url: publicUrlData.publicUrl
+      }).eq('id', entryId);
+      
+      if (updateError) throw updateError;
+
+      router.invalidate();
+    } catch (err: any) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setUploadingId(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-20 pb-32">
@@ -49,7 +88,7 @@ function DrawHistoryPage() {
             <h2 className="font-serif text-2xl mb-6">Your Past Tickets</h2>
             <div className="space-y-4">
               {userEntries.map(entry => (
-                <div key={entry.id} className="flex flex-col md:flex-row justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                <div key={entry.id} className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-border/50 pb-4 last:border-0 last:pb-0">
                   <div>
                     <p className="font-mono text-sm tracking-widest bg-background px-3 py-1 rounded inline-block border border-border">
                       {entry.score_snapshot.join(" - ")}
@@ -58,9 +97,33 @@ function DrawHistoryPage() {
                       Matches: <span className="font-medium text-foreground">{entry.matched_count}/5</span>
                     </p>
                   </div>
-                  <div className="mt-4 md:mt-0 md:text-right">
+                  
+                  <div className="mt-4 md:mt-0 md:text-right flex flex-col items-start md:items-end w-full md:w-auto mt-4 md:mt-0">
                     <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Prize</p>
                     <p className="font-serif text-xl">{entry.reward_won > 0 ? `₹${entry.reward_won}` : "No Win"}</p>
+                    
+                    {entry.reward_won > 0 && (!entry.verification_status || entry.verification_status === 'pending_upload') && (
+                      <label className="mt-3 cursor-pointer inline-flex h-8 items-center justify-center rounded-sm bg-primary px-4 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                        {uploadingId === entry.id ? 'Uploading...' : 'Upload Scorecard Proof'}
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          className="hidden" 
+                          onChange={(e) => handleUploadProof(entry.id, e)}
+                          disabled={uploadingId === entry.id}
+                        />
+                      </label>
+                    )}
+                    {entry.verification_status === 'pending_review' && (
+                      <span className="mt-3 inline-flex h-8 items-center justify-center rounded-sm bg-accent/50 px-4 text-xs font-medium text-foreground">
+                        Proof Under Review
+                      </span>
+                    )}
+                    {entry.verification_status === 'approved' && (
+                      <span className="mt-3 inline-flex h-8 items-center justify-center rounded-sm bg-green-500/10 px-4 text-xs font-medium text-green-600 border border-green-500/20">
+                        Verified & Paid
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
