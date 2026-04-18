@@ -5,17 +5,17 @@ import { SiteShell } from "../components/site/SiteShell";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 pt-20">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="font-display text-8xl font-extrabold text-gradient-green">404</h1>
+        <h2 className="mt-4 font-display text-xl font-semibold text-white">Page not found</h2>
+        <p className="mt-3 text-sm text-white/40">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="btn-green-gradient inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold"
           >
             Go home
           </Link>

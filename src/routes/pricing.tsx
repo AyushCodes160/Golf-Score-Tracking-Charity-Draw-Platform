@@ -77,78 +77,82 @@ function PricingPage() {
     }
   };
 
+  const features = [
+    "Stableford score tracking",
+    "Automatic monthly draw entry",
+    "Choose & change your charity anytime",
+    "Minimum 10% to charity — up to 100%",
+    "Signed monthly receipts",
+  ];
+
   return (
     <>
-      <section className="mx-auto max-w-6xl px-6 pb-12 pt-20 md:pt-28">
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+      {/* Header */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-12 pt-32 md:pt-40">
+        <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary/70">
+          <span className="h-px w-8 bg-primary/40" />
           Membership
-        </p>
-        <h1 className="mt-4 max-w-3xl text-balance font-serif text-5xl font-light leading-[1.05] md:text-6xl">
+        </span>
+        <h1 className="mt-6 max-w-3xl text-balance font-display text-5xl font-extrabold leading-[1.05] text-white md:text-6xl">
           Two plans.{" "}
-          <em className="italic text-accent-foreground/90">One promise:</em> at least
-          10% to charity.
+          <span className="text-gradient-green">One promise:</span>{" "}
+          <span className="text-white/60">at least 10% to charity.</span>
         </h1>
-        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-white/40">
           No tiers, no feature gates. Every member gets the full experience. The only
           difference is how often you&rsquo;d like to be billed — and how much you&rsquo;d
           like to save.
         </p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16">
+      {/* Pricing cards */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-20">
         <div className="grid gap-6 md:grid-cols-2">
           {/* Monthly */}
-          <article className="flex flex-col rounded-sm border border-border bg-card p-8 md:p-10">
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          <article className="glass-card glass-card-hover flex flex-col rounded-3xl p-8 md:p-10 transition-all duration-500">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-white/30">
               Monthly
             </p>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-serif text-6xl font-light">₹900</span>
-              <span className="text-sm text-muted-foreground">/ month</span>
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="font-display text-6xl font-extrabold text-white">₹900</span>
+              <span className="text-sm text-white/30">/ month</span>
             </div>
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-white/40">
               Cancel any time. Full access to scoring, monthly draws, and charity
               allocation.
             </p>
             <ul className="mt-8 space-y-3 text-sm">
-              {[
-                "Stableford score tracking",
-                "Automatic monthly draw entry",
-                "Choose &amp; change your charity anytime",
-                "Minimum 10% to charity — up to 100%",
-                "Signed monthly receipts",
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-3">
-                  <span
-                    aria-hidden
-                    className="mt-2 inline-block h-1 w-3 flex-shrink-0 bg-accent"
-                  />
-                  <span dangerouslySetInnerHTML={{ __html: f }} />
+              {features.map((f) => (
+                <li key={f} className="flex items-start gap-3 text-white/60">
+                  <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{f}</span>
                 </li>
               ))}
             </ul>
             <button
               onClick={() => handleSubscribe("monthly")}
               disabled={loadingPlan === "monthly"}
-              className="mt-10 inline-flex h-12 items-center justify-center rounded-full border border-border text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
+              className="mt-10 inline-flex h-13 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-sm font-semibold text-white transition-all duration-300 hover:border-primary/30 hover:bg-white/10 disabled:opacity-50"
             >
               {loadingPlan === "monthly" ? "Processing..." : "Start monthly"}
             </button>
           </article>
 
           {/* Yearly */}
-          <article className="relative flex flex-col rounded-sm border border-primary bg-primary p-8 text-primary-foreground md:p-10">
-            <span className="absolute right-6 top-6 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
+          <article className="relative flex flex-col rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-8 md:p-10 transition-all duration-500 hover:border-primary/30 glow-green-sm">
+            <span className="absolute right-6 top-6 rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-[#070707]">
               Save ₹1,800
             </span>
-            <p className="text-xs uppercase tracking-[0.22em] text-primary-foreground/60">
+            <p className="text-xs font-medium uppercase tracking-[0.2em] text-primary/60">
               Yearly
             </p>
-            <div className="mt-4 flex items-baseline gap-2">
-              <span className="font-serif text-6xl font-light">₹9,000</span>
-              <span className="text-sm text-primary-foreground/70">/ year</span>
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="font-display text-6xl font-extrabold text-white">₹9,000</span>
+              <span className="text-sm text-white/30">/ year</span>
             </div>
-            <p className="mt-3 text-sm text-primary-foreground/70">
+            <p className="mt-4 text-sm text-white/40">
               ₹750/mo billed annually. Two months on us. Everything in monthly,
               plus a founder&rsquo;s mark on your profile.
             </p>
@@ -156,23 +160,22 @@ function PricingPage() {
               {[
                 "Everything in monthly",
                 "Two months free",
-                "Founder&rsquo;s mark (first 500 members)",
+                "Founder's mark (first 500 members)",
                 "Early access to new partner charities",
                 "Annual impact statement",
               ].map((f) => (
-                <li key={f} className="flex items-start gap-3">
-                  <span
-                    aria-hidden
-                    className="mt-2 inline-block h-1 w-3 flex-shrink-0 bg-accent"
-                  />
-                  <span dangerouslySetInnerHTML={{ __html: f }} />
+                <li key={f} className="flex items-start gap-3 text-white/60">
+                  <svg className="mt-0.5 h-4 w-4 flex-shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{f}</span>
                 </li>
               ))}
             </ul>
             <button
               onClick={() => handleSubscribe("yearly")}
               disabled={loadingPlan === "yearly"}
-              className="mt-10 inline-flex h-12 items-center justify-center rounded-full bg-accent text-sm font-medium text-accent-foreground disabled:opacity-50 hover:bg-accent/90 transition-colors"
+              className="btn-green-gradient mt-10 inline-flex h-13 items-center justify-center rounded-2xl text-sm font-bold disabled:opacity-50"
             >
               {loadingPlan === "yearly" ? "Processing..." : "Start yearly"}
             </button>
@@ -181,16 +184,18 @@ function PricingPage() {
       </section>
 
       {/* Split breakdown */}
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="grid gap-12 border-t border-border pt-16 md:grid-cols-[1fr_2fr] md:gap-16">
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-28">
+        <div className="grid gap-12 border-t border-white/5 pt-20 md:grid-cols-[1fr_2fr] md:gap-20">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+            <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary/70">
+              <span className="h-px w-8 bg-primary/40" />
               Where your money goes
-            </p>
-            <h2 className="mt-4 font-serif text-4xl font-light leading-tight md:text-5xl">
-              The prize pool, split in public.
+            </span>
+            <h2 className="mt-6 font-display text-4xl font-bold leading-tight text-white md:text-5xl">
+              The prize pool,{" "}
+              <span className="text-white/50">split in public.</span>
             </h2>
-            <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-6 text-sm leading-relaxed text-white/40">
               After your charity allocation and platform costs, the remainder of the
               monthly subscription pool becomes that month&rsquo;s prize pool — split
               across three tiers.
@@ -200,17 +205,17 @@ function PricingPage() {
             {split.map((s) => (
               <div
                 key={s.label}
-                className="flex items-baseline justify-between gap-6 border-b border-border pb-4"
+                className="flex items-baseline justify-between gap-6 border-b border-white/5 pb-5"
               >
                 <div>
-                  <p className="font-serif text-2xl">{s.label}</p>
+                  <p className="font-display text-xl font-semibold text-white/80">{s.label}</p>
                 </div>
-                <p className="font-serif text-4xl font-light text-foreground">
+                <p className="font-display text-4xl font-extrabold text-gradient-green">
                   {s.pct}
                 </p>
               </div>
             ))}
-            <p className="pt-2 text-xs leading-relaxed text-muted-foreground">
+            <p className="pt-2 text-xs leading-relaxed text-white/30">
               Multiple winners in a tier split that tier equally. If no member
               matches all five numbers, the jackpot rolls into next month&rsquo;s
               pool — no skim, no expiry.
@@ -221,4 +226,3 @@ function PricingPage() {
     </>
   );
 }
-

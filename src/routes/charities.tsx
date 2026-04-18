@@ -97,77 +97,94 @@ function CharitiesPage() {
 
   return (
     <>
-      <section className="mx-auto max-w-6xl px-6 pb-12 pt-20 md:pt-28">
-        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+      {/* Header */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-12 pt-32 md:pt-40">
+        <span className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary/70">
+          <span className="h-px w-8 bg-primary/40" />
           The causes
-        </p>
-        <h1 className="mt-4 max-w-3xl text-balance font-serif text-5xl font-light leading-[1.05] md:text-6xl">
-          Four partners. <em className="italic text-accent-foreground/90">One choice.</em>{" "}
-          Quiet, monthly impact.
+        </span>
+        <h1 className="mt-6 max-w-3xl text-balance font-display text-5xl font-extrabold leading-[1.05] text-white md:text-6xl">
+          Four partners.{" "}
+          <span className="text-gradient-green">One choice.</span>{" "}
+          <span className="text-white/60">Quiet, monthly impact.</span>
         </h1>
-        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+        <p className="mt-8 max-w-2xl text-lg leading-relaxed text-white/40">
           Every member picks one partner and sets their allocation — from the 10%
           minimum up to 100% of their subscription. We publish signed receipts every
           month. No marketing deductions, no vanity metrics.
         </p>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-24">
+      {/* Charities grid */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-24">
         {charities.length === 0 ? (
-          <div className="py-20 text-center border border-dashed border-border rounded-sm">
-            <h2 className="font-serif text-2xl text-muted-foreground">No active charities found.</h2>
-            <p className="text-sm text-muted-foreground mt-2">Please ensure your database is seeded.</p>
+          <div className="glass-card rounded-3xl py-20 text-center">
+            <h2 className="font-display text-2xl font-semibold text-white/40">No active charities found.</h2>
+            <p className="text-sm text-white/30 mt-2">Please ensure your database is seeded.</p>
           </div>
         ) : (
-          <div className="grid gap-12 md:grid-cols-2">
+          <div className="grid gap-8 md:grid-cols-2">
             {charities.map((c, i) => (
-              <article key={c.id} className="group">
-                <div className="overflow-hidden rounded-sm">
+              <article
+                key={c.id}
+                className="glass-card glass-card-hover group rounded-3xl overflow-hidden transition-all duration-500"
+              >
+                {/* Image */}
+                <div className="overflow-hidden">
                   <img
                     src={c.image_url}
                     alt={`${c.name} — ${c.tag}`}
-                    className="aspect-[4/3] w-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                    className="aspect-[16/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                     width={1200}
                     height={900}
                     loading="lazy"
                   />
                 </div>
-                <div className="mt-6 flex items-baseline justify-between gap-4 border-b border-border pb-3">
-                  <div>
-                    <p className="font-serif text-xs italic text-accent-foreground/70">
-                      No. 0{i + 1} · {c.tag}
-                    </p>
-                    <h2 className="mt-1 font-serif text-2xl">{c.name}</h2>
+
+                {/* Content */}
+                <div className="p-6 md:p-8">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-medium text-primary/60">
+                        No. 0{i + 1} · {c.tag}
+                      </p>
+                      <h2 className="mt-2 font-display text-xl font-bold text-white">
+                        {c.name}
+                      </h2>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary animate-glow-pulse" />
+                      Active
+                    </span>
                   </div>
-                  <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                    Active
-                  </span>
+                  <p className="mt-4 text-sm leading-relaxed text-white/40">
+                    {c.description}
+                  </p>
                 </div>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                  {c.description}
-                </p>
               </article>
             ))}
           </div>
         )}
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <div className="border-t border-border pt-10">
+      {/* Bottom CTA */}
+      <section className="mx-auto max-w-7xl px-6 lg:px-10 pb-28">
+        <div className="border-t border-white/5 pt-12">
           <div className="grid gap-6 md:grid-cols-[2fr_1fr] md:items-end">
-            <h2 className="max-w-xl font-serif text-3xl font-light leading-tight md:text-4xl">
-              Pick the cause that moves you. Adjust your allocation any time.
+            <h2 className="max-w-xl font-display text-3xl font-bold leading-tight text-white md:text-4xl">
+              Pick the cause that moves you.{" "}
+              <span className="text-white/50">Adjust your allocation any time.</span>
             </h2>
             <div className="md:justify-self-end flex flex-col md:flex-row gap-4">
               <button
                 onClick={() => alert("Launching Stripe One-Time Donation Checkout...")}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-border bg-background px-7 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="inline-flex h-13 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-7 text-sm font-semibold text-white transition-all duration-300 hover:border-primary/30 hover:bg-white/10"
               >
                 Make a one-off donation
               </button>
               <Link
                 to="/pricing"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                className="btn-green-gradient inline-flex h-13 items-center justify-center rounded-2xl px-7 text-sm font-bold"
               >
                 Start your membership
               </Link>
@@ -178,4 +195,3 @@ function CharitiesPage() {
     </>
   );
 }
-

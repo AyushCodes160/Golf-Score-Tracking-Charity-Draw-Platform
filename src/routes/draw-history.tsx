@@ -74,36 +74,36 @@ function DrawHistoryPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-20 pb-32">
+    <div className="mx-auto max-w-5xl px-6 lg:px-10 py-28 pb-32">
       <div className="mb-12">
-        <h1 className="font-serif text-4xl font-light">Draw History</h1>
-        <p className="text-sm text-muted-foreground mt-2">Complete transparency of all past sweepstakes, winning numbers, and prize pool sizing.</p>
+        <h1 className="font-display text-4xl font-bold text-white">Draw History</h1>
+        <p className="text-sm text-white/30 mt-3">Complete transparency of all past sweepstakes, winning numbers, and prize pool sizing.</p>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-10">
         
         {/* The Users personal tickets */}
         {userEntries.length > 0 && (
-          <section className="rounded-sm border border-primary/20 bg-primary/5 p-6 md:p-8">
-            <h2 className="font-serif text-2xl mb-6">Your Past Tickets</h2>
+          <section className="glass-card rounded-3xl border-primary/10 bg-primary/[0.03] p-6 md:p-8">
+            <h2 className="font-display text-2xl font-bold text-white mb-6">Your Past Tickets</h2>
             <div className="space-y-4">
               {userEntries.map(entry => (
-                <div key={entry.id} className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-border/50 pb-4 last:border-0 last:pb-0">
+                <div key={entry.id} className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/5 pb-4 last:border-0 last:pb-0">
                   <div>
-                    <p className="font-mono text-sm tracking-widest bg-background px-3 py-1 rounded inline-block border border-border">
+                    <p className="font-mono text-sm tracking-widest bg-white/5 px-3 py-1.5 rounded-lg inline-block border border-white/5 text-white/70">
                       {entry.score_snapshot.join(" - ")}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-2 uppercase tracking-widest">
-                      Matches: <span className="font-medium text-foreground">{entry.matched_count}/5</span>
+                    <p className="text-xs text-white/30 mt-2 uppercase tracking-widest">
+                      Matches: <span className="font-medium text-white">{entry.matched_count}/5</span>
                     </p>
                   </div>
                   
-                  <div className="mt-4 md:mt-0 md:text-right flex flex-col items-start md:items-end w-full md:w-auto mt-4 md:mt-0">
-                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Prize</p>
-                    <p className="font-serif text-xl">{entry.reward_won > 0 ? `₹${entry.reward_won}` : "No Win"}</p>
+                  <div className="mt-4 md:mt-0 md:text-right flex flex-col items-start md:items-end w-full md:w-auto">
+                    <p className="text-xs uppercase tracking-widest text-white/20 mb-1">Prize</p>
+                    <p className="font-display text-xl font-bold text-white">{entry.reward_won > 0 ? `₹${entry.reward_won}` : "No Win"}</p>
                     
                     {entry.reward_won > 0 && (!entry.verification_status || entry.verification_status === 'pending_upload') && (
-                      <label className="mt-3 cursor-pointer inline-flex h-8 items-center justify-center rounded-sm bg-primary px-4 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                      <label className="mt-3 cursor-pointer btn-green-gradient inline-flex h-9 items-center justify-center rounded-xl px-4 text-xs font-bold">
                         {uploadingId === entry.id ? 'Uploading...' : 'Upload Scorecard Proof'}
                         <input 
                           type="file" 
@@ -115,12 +115,12 @@ function DrawHistoryPage() {
                       </label>
                     )}
                     {entry.verification_status === 'pending_review' && (
-                      <span className="mt-3 inline-flex h-8 items-center justify-center rounded-sm bg-accent/50 px-4 text-xs font-medium text-foreground">
+                      <span className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-yellow-500/10 px-4 text-xs font-medium text-yellow-400 border border-yellow-500/20">
                         Proof Under Review
                       </span>
                     )}
                     {entry.verification_status === 'approved' && (
-                      <span className="mt-3 inline-flex h-8 items-center justify-center rounded-sm bg-green-500/10 px-4 text-xs font-medium text-green-600 border border-green-500/20">
+                      <span className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-primary/10 px-4 text-xs font-medium text-primary border border-primary/20">
                         Verified & Paid
                       </span>
                     )}
@@ -132,42 +132,42 @@ function DrawHistoryPage() {
         )}
 
         {/* Global Draw History */}
-        <section className="rounded-sm border border-border bg-card p-6 md:p-8">
-          <h2 className="font-serif text-2xl mb-8">Platform Records</h2>
+        <section className="glass-card rounded-3xl p-6 md:p-8">
+          <h2 className="font-display text-2xl font-bold text-white mb-8">Platform Records</h2>
           
           {draws.length === 0 ? (
-            <p className="text-muted-foreground text-sm italic">No draws have been executed yet.</p>
+            <p className="text-white/30 text-sm italic">No draws have been executed yet.</p>
           ) : (
             <div className="grid gap-6">
               {draws.map(draw => (
-                <article key={draw.id} className="border border-border rounded-sm p-6 bg-background/50">
-                  <div className="flex flex-col md:flex-row justify-between mb-6 border-b border-border pb-4">
+                <article key={draw.id} className="border border-white/5 rounded-2xl p-6 bg-white/[0.02] transition-all duration-300 hover:border-white/10">
+                  <div className="flex flex-col md:flex-row justify-between mb-6 border-b border-white/5 pb-4">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground mb-2">Winning Numbers</p>
-                      <p className="font-mono text-xl tracking-[0.5em] text-foreground">{draw.winning_numbers.join("-")}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-white/20 mb-2">Winning Numbers</p>
+                      <p className="font-mono text-xl tracking-[0.5em] text-primary font-bold">{draw.winning_numbers.join("-")}</p>
                     </div>
                     <div className="mt-4 md:mt-0 md:text-right">
-                      <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground mb-2">Executed On</p>
-                      <p className="text-sm font-medium">{new Date(draw.ran_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-white/20 mb-2">Executed On</p>
+                      <p className="text-sm font-medium text-white/70">{new Date(draw.ran_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mt-4">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Gross Pool</p>
-                      <p className="font-serif text-lg">₹{draw.total_pool}</p>
+                      <p className="text-xs text-white/20 mb-1">Gross Pool</p>
+                      <p className="font-display text-lg font-bold text-white">₹{draw.total_pool}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Charity Payout</p>
-                      <p className="font-serif text-lg text-accent-foreground">₹{draw.charity_payout}</p>
+                      <p className="text-xs text-white/20 mb-1">Charity Payout</p>
+                      <p className="font-display text-lg font-bold text-primary">₹{draw.charity_payout}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Jackpot (5/5)</p>
-                      <p className="font-serif text-lg font-semibold">₹{draw.jackpot_payout}</p>
+                      <p className="text-xs text-white/20 mb-1">Jackpot (5/5)</p>
+                      <p className="font-display text-lg font-bold text-white">₹{draw.jackpot_payout}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Tier 3 & 4</p>
-                      <p className="font-serif text-lg">₹{draw.tier_4_payout + draw.tier_3_payout}</p>
+                      <p className="text-xs text-white/20 mb-1">Tier 3 & 4</p>
+                      <p className="font-display text-lg font-bold text-white/70">₹{draw.tier_4_payout + draw.tier_3_payout}</p>
                     </div>
                   </div>
                 </article>
