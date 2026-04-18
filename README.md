@@ -174,8 +174,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 | Role | Email | Password |
 |---|---|---|
-| Regular User | user@gmail.com | *(contact for credentials)* |
-| Administrator | admin@gmail.com | *(contact for credentials)* |
+| Regular User | user@gmail.com | `user123` |
+| Administrator | admin@gmail.com | `admin123` |
 
 > The admin account has full access to the draw engine, simulation mode, and winner verification queue.
 
