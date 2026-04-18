@@ -56,12 +56,23 @@ export function Header() {
 
         <div className="flex items-center gap-3">
           {hasSession ? (
-            <Link
-              to="/dashboard"
-              className="inline-flex h-9 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90"
-            >
-              Dashboard
-            </Link>
+            <>
+              <button
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = "/login";
+                }}
+                className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block mr-2"
+              >
+                Sign out
+              </button>
+              <Link
+                to="/dashboard"
+                className="inline-flex h-9 items-center rounded-full bg-accent px-5 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent/90"
+              >
+                Dashboard
+              </Link>
+            </>
           ) : (
             <>
               <Link
